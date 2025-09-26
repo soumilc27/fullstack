@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: snore-crm
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: npm ci --prefix backend --no-audit --no-fund
+    startCommand: node backend/src/server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        value: memory
+    autoDeploy: true
+
+

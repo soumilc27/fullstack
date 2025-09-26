@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor CRM - Appointments</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand">Snore Clinics</h1>
+    <nav class="nav-links">
+      <!-- Auth buttons (shown when not logged in) -->
+      <button id="nav-login" class="nav-link">Login</button>
+      <button id="nav-register" class="nav-link">Register</button>
+      
+      <!-- Dashboard navigation (shown when logged in) -->
+      <button id="nav-dashboard" class="nav-link hidden">Dashboard</button>
+      <button id="nav-appointments" class="nav-link hidden">Appointments</button>
+      <button id="nav-profile" class="nav-link hidden">Profile</button>
+      <button id="nav-sleep-study" class="nav-link hidden">Sleep Study</button>
+      <button id="nav-health" class="nav-link hidden">Health</button>
+      
+      <!-- Admin and logout (shown when logged in) -->
+      <button id="nav-admin" class="nav-link hidden">Admin</button>
+      <button id="nav-logout" class="nav-link danger hidden">Logout</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="auth-section" class="card">
+      <h2>Authenticate</h2>
+      <div class="tabs">
+        <button data-tab="login" class="active">Login</button>
+        <button data-tab="register">Register</button>
+      </div>
+      <div id="login" class="tab active">
+        <div class="form-group">
+          <label for="login-email">Email Address</label>
+          <input id="login-email" type="email" placeholder="Enter your email" required />
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" placeholder="Enter your password" required />
+        </div>
+        <button id="login-btn">Login</button>
+        <p id="login-message" class="message"></p>
+      </div>
+      <div id="register" class="tab">
+        <div class="form-group">
+          <label for="reg-name">Full Name *</label>
+          <input id="reg-name" type="text" placeholder="Enter your full name" required />
+        </div>
+        <div class="form-group">
+          <label for="reg-phone">Phone Number *</label>
+          <input id="reg-phone" type="tel" placeholder="Enter your phone number" required />
+        </div>
+        <div class="form-group">
+          <label for="reg-email">Email Address *</label>
+          <input id="reg-email" type="email" placeholder="Enter your email address" />
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Password *</label>
+          <input id="reg-password" type="password" placeholder="Enter a password" minlength="6" />
+          <div id="password-strength" class="password-strength hidden"></div>
+        </div>
+        <input type="hidden" id="reg-role" value="patient" />
+        <button id="send-otp-btn">Send OTP</button>
+        <div class="form-group hidden" id="otp-group">
+          <label for="otp-code">Enter OTP</label>
+          <input id="otp-code" type="text" placeholder="Enter 6-digit OTP" maxlength="6" />
+        </div>
+        <button id="verify-otp-btn" class="hidden">Verify OTP</button>
+        <button id="register-btn" class="hidden">Complete Registration</button>
+        <p id="auth-message" class="message"></p>
+      </div>
+      
+      
+      <!-- Development only - Create Admin -->
+      <div class="dev-tools">
+        <h4>Development Tools</h4>
+        <button id="create-admin-btn" class="dev-btn">Create Admin User</button>
+      </div>
+    </section>
+
+    <!-- Main Dashboard -->
+    <section id="user-section" class="card hidden">
+      <h2>Dashboard</h2>
+      <p id="user-info">Welcome back!</p>
+
+      <!-- Dashboard Content -->
+      <div id="dashboard-content" class="dashboard-content">
+        <div class="dashboard-grid">
+          <div class="dashboard-card">
+            <h3>Quick Actions</h3>
+            <div class="quick-actions">
+              <button id="book-appointment-btn" class="action-btn">Book Appointment</button>
+              <button id="request-sleep-study-btn" class="action-btn">Request Sleep Study</button>
+              <button id="update-profile-btn" class="action-btn">Update Profile</button>
+            </div>
+          </div>
+          
+          <div class="dashboard-card">
+            <h3>Recent Appointments</h3>
+            <div id="recent-appointments" class="list"></div>
+          </div>
+          
+          <div class="dashboard-card">
+            <h3>Available Doctors</h3>
+            <div id="doctors-list" class="list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointments Content -->
+      <div id="appointments-content" class="dashboard-content hidden">
+        <div class="section-header">
+          <h3>Book New Appointment</h3>
+          <button id="refresh-doctors-btn" class="refresh-btn">Refresh Doctors</button>
+        </div>
+        <form id="appointment-form" class="appointment-form">
+          <div class="form-group">
+            <label for="doctor-select">Select Doctor:</label>
+            <select id="doctor-select" required>
+              <option value="">Choose a doctor...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="appt-datetime">Date & Time:</label>
+            <input id="appt-datetime" type="datetime-local" required />
+          </div>
+          <div class="form-group">
+            <label for="appt-reason">Reason for Visit:</label>
+            <textarea id="appt-reason" placeholder="Describe your symptoms or reason for the appointment..." required></textarea>
+          </div>
+          <button type="submit" id="book-btn" class="book-appointment-btn">Book Appointment</button>
+        </form>
+        <p id="book-message" class="message"></p>
+
+        <h3>Your Appointments</h3>
+        <div id="appointments-list" class="list"></div>
+      </div>
+
+      <!-- Profile Content -->
+      <div id="profile-content" class="dashboard-content hidden">
+        <h3>Profile Information</h3>
+        <form id="profile-form">
+          <div class="form-group">
+            <label for="profile-name">Full Name:</label>
+            <input id="profile-name" type="text" required />
+          </div>
+          <div class="form-group">
+            <label for="profile-phone">Phone:</label>
+            <input id="profile-phone" type="tel" required />
+          </div>
+          <div class="form-group">
+            <label for="profile-email">Email:</label>
+            <input id="profile-email" type="email" required />
+          </div>
+          <div class="form-group">
+            <label for="profile-dob">Date of Birth:</label>
+            <input id="profile-dob" type="date" />
+          </div>
+          <div class="form-group">
+            <label for="profile-gender">Gender:</label>
+            <select id="profile-gender">
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="profile-address">Address:</label>
+            <textarea id="profile-address" placeholder="Your address..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="profile-emergency">Emergency Contact:</label>
+            <input id="profile-emergency" type="text" placeholder="Emergency contact name and phone" />
+          </div>
+          <div class="form-group">
+            <label for="profile-medical">Medical History:</label>
+            <textarea id="profile-medical" placeholder="Any relevant medical history..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="profile-allergies">Allergies:</label>
+            <textarea id="profile-allergies" placeholder="List any allergies..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="profile-medications">Current Medications:</label>
+            <textarea id="profile-medications" placeholder="List current medications..."></textarea>
+          </div>
+          <button type="submit" id="profile-save-btn">Save Profile</button>
+        </form>
+        <p id="profile-message" class="message"></p>
+      </div>
+
+      <!-- Sleep Study Content -->
+      <div id="sleep-study-content" class="dashboard-content hidden">
+        <div class="section-header">
+          <h3>Request Sleep Study</h3>
+          <button id="refresh-sleep-doctors-btn" class="refresh-btn">Refresh Doctors</button>
+        </div>
+        <form id="sleep-study-form">
+          <div class="form-group">
+            <label for="study-doctor">Select Doctor:</label>
+            <select id="study-doctor" required>
+              <option value="">Choose a doctor...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="study-date">Preferred Date:</label>
+            <input id="study-date" type="date" required />
+          </div>
+          <div class="form-group">
+            <label for="study-type">Study Type:</label>
+            <select id="study-type" required>
+              <option value="">Select study type</option>
+              <option value="in-lab">In-Lab Sleep Study (Polysomnography)</option>
+              <option value="home">Home Sleep Test</option>
+              <option value="telemedicine">Telemedicine Consultation</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="study-notes">Additional Notes:</label>
+            <textarea id="study-notes" placeholder="Any specific concerns or notes..."></textarea>
+          </div>
+          <button type="submit" id="study-submit-btn">Request Sleep Study</button>
+        </form>
+        <p id="study-message" class="message"></p>
+
+        <h3>Your Sleep Studies</h3>
+        <div id="sleep-studies-list" class="list"></div>
+      </div>
+
+      <!-- Health Content -->
+      <div id="health-content" class="dashboard-content hidden">
+        <h3>Health & Wellness</h3>
+        <div class="health-categories">
+          <button id="yoga-btn" class="health-category-btn">Yoga & Exercise</button>
+          <button id="meditation-btn" class="health-category-btn">Meditation</button>
+          <button id="assessment-btn" class="health-category-btn">Health Assessment</button>
+        </div>
+
+        <div id="yoga-content" class="health-content-section">
+          <h4>Yoga & Exercise Videos</h4>
+          <div id="yoga-videos" class="video-list"></div>
+        </div>
+
+        <div id="meditation-content" class="health-content-section hidden">
+          <h4>Meditation & Relaxation</h4>
+          <div id="meditation-videos" class="video-list"></div>
+        </div>
+
+        <div id="assessment-content" class="health-content-section hidden">
+          <h4>Health Assessment</h4>
+          <div id="assessment-form" class="assessment-form"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin-section" class="card hidden">
+      <h2>Admin Panel</h2>
+      <div class="admin-tabs">
+        <button id="admin-doctors-tab" class="admin-tab active">Manage Doctors</button>
+        <button id="admin-users-tab" class="admin-tab">Manage Users</button>
+      </div>
+
+      <div id="admin-doctors" class="admin-content">
+        <h3>Add New Doctor</h3>
+        <form id="admin-doctor-form">
+          <div class="form-group">
+            <label for="admin-doctor-name">Doctor Name:</label>
+            <input id="admin-doctor-name" type="text" required />
+          </div>
+          <div class="form-group">
+            <label for="admin-doctor-email">Email:</label>
+            <input id="admin-doctor-email" type="email" required />
+          </div>
+          <div class="form-group">
+            <label for="admin-doctor-phone">Phone (Optional):</label>
+            <input id="admin-doctor-phone" type="tel" />
+          </div>
+          <div class="form-group">
+            <label for="admin-doctor-specialty">Specialty:</label>
+            <input id="admin-doctor-specialty" type="text" required />
+          </div>
+          <div class="form-group">
+            <label for="admin-doctor-bio">Bio:</label>
+            <textarea id="admin-doctor-bio" placeholder="Doctor's biography and qualifications..."></textarea>
+          </div>
+          <button type="submit">Add Doctor</button>
+        </form>
+        <p id="admin-doctor-message" class="message"></p>
+
+        <h3>Existing Doctors</h3>
+        <div id="admin-doctors-list" class="list"></div>
+      </div>
+
+      <div id="admin-users" class="admin-content hidden">
+        <h3>All Users</h3>
+        <div id="admin-users-list" class="list"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  </body>
+  </html>
+
+
